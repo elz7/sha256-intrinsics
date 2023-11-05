@@ -81,7 +81,7 @@ static bool cpu_supports_sha256_extensions()
     int function = 7;
     int subfunction = 0;
     __cpuidex(cpu_info, function, subfunction);
-    return USE_CPU_EXTENSIONS && (cpu_info[1] >> 29) & 1;
+    return (cpu_info[1] >> 29) & 1;
 }
 
 static void process_block_using_cpu_extensions(unsigned int state[8], const unsigned char *block)
@@ -399,7 +399,7 @@ void sha256_update(struct SHA256 *context, const unsigned char *input, size_t le
         done = -context->buffer_length;
     }
 
-    if (cpu_supports_sha256_extensions())
+    if (USE_CPU_EXTENSIONS && cpu_supports_sha256_extensions())
     {
         do
         {
@@ -437,7 +437,7 @@ void sha256_complete(unsigned char digest[32], struct SHA256 *context)
     {
         memset(context->buffer + context->buffer_length, 0, 64 - context->buffer_length);
 
-        if (cpu_supports_sha256_extensions())
+        if (USE_CPU_EXTENSIONS && cpu_supports_sha256_extensions())
         {
             process_block_using_cpu_extensions(context->state, context->buffer);
         }
